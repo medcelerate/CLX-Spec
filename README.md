@@ -16,7 +16,8 @@ This document describes the structure of serialized packets used for syncing rea
 |------------|-------------|----------------------------------------------|
 | `0x01`     | Deck        | Real-time deck data (sent up to 60fps)       |
 | `0x02`     | Meta        | Track metadata (sent on load or event)       |
-| `0x03`     | Control     | Mixer and control state                      |
+| `0x00`     | Control     | Mixer and control state                      |
+| `0x03`     | Waveform     | Waveform Binary                      |
 | `0x04`     | Event       | Event trigger (e.g., load, cue, play toggle) |
 
 ---
@@ -54,7 +55,7 @@ Track metadata, typically sent once on load or when requested.
 
 ---
 
-## 🎛️ Control Packet (`0x03`)
+## 🎛️ Control Packet (`0x00`)
 
 Represents mixer fader states and app state.
 
