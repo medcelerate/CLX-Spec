@@ -82,11 +82,9 @@ Signals a client-initiated action or state change.
 
 ## 🧠 Behavioral Notes
 
-- Clients **broadcast a magic packet** upon joining to request full metadata resync (`Meta`, `Control`).
+- Clients **broadcast a magic packet** upon joining to request full metadata resync (`Meta`, `Control`) `0x09`.
 - `Deck` packets are streamed continuously and may be throttled to 60fps or lower for performance.
 - `Event` packets are **commands**, not state — they may trigger metadata refresh or playback actions.
 - Servers are expected to track and respond based on `Deck`, `Meta`, and `Control` states.
 
 ---
-
-Let me know if you'd like this exported to a `.md` or `.pdf`!
