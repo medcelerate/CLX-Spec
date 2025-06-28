@@ -11,6 +11,7 @@ typedef struct Deck {
     float eqmid = 0;
     float eqhigh = 0;
     int deck = 0;
+    int beat = 0;
     
     static Deck fromMsgPack(const msgpack11::MsgPack& msg) {
         Deck deck;
@@ -23,7 +24,8 @@ typedef struct Deck {
         deck.eqlow = msg["EQLow"].float32_value();
         deck.eqmid = msg["EQMid"].float32_value();
         deck.eqhigh = msg["EQHigh"].float32_value();
-        deck.deck = msg["Deck"].int32_value();
+        deck.deck = msg["Deck"].uint8_value();
+        deck.beat = msg["Beat"].int32_value();
         return deck;
     }
         
@@ -38,7 +40,7 @@ typedef struct Meta {
 
     static Meta fromMsgPack(const msgpack11::MsgPack& msg) {
         Meta meta;
-        meta.deck = msg["Deck"].int32_value();
+        meta.deck = msg["Deck"].uint8_value();
         meta.title = msg["Title"].string_value();
         meta.artist = msg["Artist"].string_value();
         meta.album = msg["Album"].string_value();
