@@ -32,7 +32,7 @@ Represents the real-time state of a single playback deck.
 |---------------------|----------|----------------------------------------|
 | `Pitch`             | `float64`| Track pitch or velocity                |
 | `Position`          | `float64`| Current playhead position (in seconds) |
-| `Position2`         | `float64`| Alternate or secondary position        |
+| `Position2`         | `float64`| Beatgrid position (`Beat Number.fraction`)       |
 | `NormalizedPosition`| `float64`| Position normalized to range [0.0–1.0] |
 | `BPM`               | `float64`| Current BPM of the track               |
 | `Length`            | `float64`| Track duration (in seconds)            |
@@ -40,12 +40,13 @@ Represents the real-time state of a single playback deck.
 | `EQMid`             | `float32`| Mid EQ gain level                      |
 | `EQHigh`            | `float32`| High EQ gain level                     |
 | `Deck`              | `uint8`  | Deck index (e.g., 0 = A, 1 = B)        |
+| `Beat`              | `uint8`  | Current Beat (1-4) all other values should be ignored |
 
 ---
 
 ## 📝 Metadata Packet (`0x02`)
 
-Track metadata, typically sent once on load or when requested.
+Track metadata, typically sent once on load or when requested. All strings UTF-8 encoded.
 
 | Key         | Type       | Description                          |
 |-------------|------------|--------------------------------------|
@@ -84,7 +85,7 @@ Signals a client-initiated action or state change.
 
 ## Waveform Data (`0x03`)
 
-A binary packet containing waveform data. Each packet is a maximum size of `1024` bytes. Different from the other packet types this is constructed as follows:
+A binary packet containing waveform data. Each packet is a maximum size of `4096` bytes. Different from the other packet types this is constructed as follows:
 
 | Offset  | Size | Value                | Description                              |
 |---------|------|----------------------|------------------------------------------|
@@ -92,6 +93,9 @@ A binary packet containing waveform data. Each packet is a maximum size of `1024
 | 33      |  8   | Total Size           | Total size of file expected  |
 | 40      |  4   | Order                | Ordering of received data   |
 | 44      |  N   | Data                 | Binary data  |
+
+We follow the conventions from the BBC, with one alteration, appeneded to the bottom is a CLRS section in binary containing the rgb color values for each pair of values. This is represented as clrs in the json format.
+https://github.com/bbc/audiowaveform/blob/master/doc/DataFormat.md
 
 ## 🧠 Behavioral Notes
 
