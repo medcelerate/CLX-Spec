@@ -97,12 +97,12 @@ Signals a client-initiated action or state change.
 
 A binary packet containing waveform data. Each packet is a maximum size of `4096` bytes. Different from the other packet types this is constructed as follows:
 
-| Offset  | Size | Value                | Description                              |
-|---------|------|----------------------|------------------------------------------|
-| 1       | 32   | File Name (MD5 Hash) | MD5 hash that acts as the file name |
-| 33      |  8   | Total Size           | Total size of file expected  |
-| 40      |  4   | Order                | Ordering of received data   |
-| 44      |  N   | Data                 | Binary data  |
+| Offset  | Size | Value                  | Description                                     |
+|---------|------|------------------------|-------------------------------------------------|
+| 1       | 32   | File Name (MD5 Hash)   | MD5 hash that acts as the file name (ascii hex) |
+| 33      |  8   | BBC Payload Total Size | Total size of file expected (uint64 LE)         |
+| 41      |  4   | Order                  | Ordering of received data (uint32 LE)           |
+| 45      |  N   | Data                   | Binary data                                     |
 
 We follow the conventions from the BBC, with one alteration, appeneded to the bottom is a CLRS section in binary containing the rgb color values for each pair of values. This is represented as clrs in the json format.
 https://github.com/bbc/audiowaveform/blob/master/doc/DataFormat.md
