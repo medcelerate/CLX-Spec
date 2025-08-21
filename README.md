@@ -107,6 +107,19 @@ A binary packet containing waveform data. Each packet is a maximum size of `4096
 We follow the conventions from the BBC, with one alteration, appeneded to the bottom is a CLRS section in binary containing the rgb color values for each pair of values. This is represented as clrs in the json format.
 https://github.com/bbc/audiowaveform/blob/master/doc/DataFormat.md
 
+## Binary Data (`0x05`)
+
+A binary packet containing arbitrary data. The below fields describe an example used for waveform V2 data. Additonal fields are optional depending on how the data needs to be used. It is recommended to include an order value as well as the expected total size.
+
+| Key     | Type     | Description                    |
+|---------|----------|--------------------------------|
+| `Type`  | `string` | Type of data e.g waveform      |
+| `Hash`  | `bytes`  | sha256 hash of entire dataset  |
+| `Total` | `uint64` | Total size of payload          |
+| `Order` | `uint32` | Packet Order                   |
+| `Data`  | `binary` | Binary Data                    |
+
+
 ## 🧠 Behavioral Notes
 
 - Clients **broadcast a magic packet** upon joining to request full metadata resync (`Meta`, `Control`) `0x09`.
