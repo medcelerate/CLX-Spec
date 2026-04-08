@@ -76,6 +76,8 @@ Represents mixer fader states and app state.
 |-------------|------------|------------------------------------------|
 | `UpfaderA`  | `float64`  | Fader level for Deck A                   |
 | `UpfaderB`  | `float64`  | Fader level for Deck B                   |
+| `UpfaderC`  | `float64`  | Fader level for Deck C                   |
+| `UpfaderD`  | `float64`  | Fader level for Deck D                   |
 | `Crossfader`| `float64`  | Crossfader position (typically 0 to 1)   |
 | `Active`    | `uint8`    | Active deck or focus status              |
 | `AppState`  | `string`   | App connection or session state          |
