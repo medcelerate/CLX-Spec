@@ -116,7 +116,7 @@ Waveform data comes in as binary data in fragements. The re-assembled data is a 
 
 
 ## Waveform Request (`0x03`)
-This is a special form of micro-packet that is used for clients that support retransmission of waveform. This is simply two bytes, the `header` and the deck stored as a uint8. This will trigger transmission of the current loaded waveform on the source. 
+This is a special form of micro-packet that is used for clients that support retransmission of waveform. This is simply two bytes, the `header` and the deck stored as a uint8. This will trigger transmission of the current loaded waveform on the source. CLX Senders can receive this on port 7000 specifically.
 
 
 ## 🧠 Behavioral Notes
