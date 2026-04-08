@@ -216,7 +216,9 @@ class CLXSocket:
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        self._sock.bind((bind_address, bind_port))
+        # Binding to 0.0.0.0 is intentional: CLX packets arrive via unicast,
+        # broadcast, and multicast, so we must listen on all interfaces.
+        self._sock.bind((bind_address, bind_port))  # nosec B104
         self._packer   = CLXPacker()
         self._unpacker = CLXUnpacker()
 
