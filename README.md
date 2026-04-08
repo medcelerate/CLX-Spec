@@ -93,20 +93,6 @@ Signals a client-initiated action or state change.
 
 ---
 
-## Waveform Data (`0x03`)
-
-A binary packet containing waveform data. Each packet is a maximum size of `4096` bytes. Different from the other packet types this is constructed as follows:
-
-| Offset  | Size | Value                  | Description                                     |
-|---------|------|------------------------|-------------------------------------------------|
-| 1       | 32   | File Name (MD5 Hash)   | MD5 hash that acts as the file name (ascii hex) |
-| 33      |  8   | BBC Payload Total Size | Total size of file expected (uint64 LE)         |
-| 41      |  4   | Order                  | Ordering of received data (uint32 LE)           |
-| 45      |  N   | Data                   | Binary data                                     |
-
-We follow the conventions from the BBC, with one alteration, appeneded to the bottom is a CLRS section in binary containing the rgb color values for each pair of values. This is represented as clrs in the json format.
-https://github.com/bbc/audiowaveform/blob/master/doc/DataFormat.md
-
 ## Binary Data (`0x05`)
 
 A binary packet containing arbitrary data. The below fields describe an example used for waveform V2 data. Additonal fields are optional depending on how the data needs to be used. It is recommended to include an order value as well as the expected total size.
@@ -119,6 +105,19 @@ A binary packet containing arbitrary data. The below fields describe an example 
 | `Order` | `uint32` | Packet Order                   |
 | `Data`  | `binary` | Binary Data                    |
 
+We follow the conventions from the BBC, with one alteration, appended to the bottom is a CLRS section in binary containing the rgb color values for each pair of values. This is represented as clrs in the json format.
+https://github.com/bbc/audiowaveform/blob/master/doc/DataFormat.md
+
+Waveform data comes in as binary data in fragements. The re-assembled data is a messsagepack blob as below. These should be saved as rwf files in a local cache.
+| Key     | Type     | Description                    |
+|---------|----------|--------------------------------|
+| `Data`  | `string` | The binary of the waveform data|
+| `Hash`  | `bytes`  | md5 sum of track title, waveform file name  |
+
+
+## Waveform Request (`0x03`)
+This is a special form of micro-packet that is used for clients that support retransmission of waveform. This is simply two bytes, the `header` and the deck stored as a uint8. This will trigger transmission of the current loaded waveform on the source. 
+
 
 ## 🧠 Behavioral Notes
 
@@ -126,5 +125,6 @@ A binary packet containing arbitrary data. The below fields describe an example 
 - `Deck` packets are streamed continuously and may be throttled to 60fps for performance.
 - `Event` packets are **commands**, not state — the actions they define are user definable.
 - Servers are expected to track and respond based on `Deck`, `Meta`, and `Control` states.
+- If you are a spectator it is highly recommended to implement both unicast and multicast listen. Multicast happens on address `239.0.0.1`
 
 ---
