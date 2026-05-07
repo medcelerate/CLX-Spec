@@ -97,15 +97,76 @@ Signals a client-initiated action or state change.
 
 ## Binary Data (`0x05`)
 
-A binary packet containing arbitrary data. The below fields describe an example used for waveform V2 data. Additonal fields are optional depending on how the data needs to be used. It is recommended to include an order value as well as the expected total size.
+A binary packet containing arbitrary data. The required fields below are used for waveform, beatgrid, device announce, and command-like binary payloads. `Deck` carries the CLX deck identifier (`0x0A` = Deck A, `0x0B` = Deck B, `0x0C` = Deck C, `0x0D` = Deck D) for the source or owning deck of the binary payload. Command-like binary payloads also include their own target/source context inside `Data` when needed.
 
-| Key     | Type     | Description                    |
-|---------|----------|--------------------------------|
-| `Type`  | `string` | Type of data e.g waveform      |
-| `Hash`  | `bytes`  | sha256 hash of entire dataset  |
-| `Total` | `uint64` | Total size of payload          |
-| `Order` | `uint32` | Packet Order                   |
-| `Data`  | `binary` | Binary Data                    |
+| Key     | Type     | Description                              |
+|---------|----------|------------------------------------------|
+| `Type`  | `string` | Type of data e.g waveform                |
+| `Deck`  | `uint8`  | CLX deck identifier for this binary data |
+| `Hash`  | `bytes`  | sha256 hash of entire dataset (Left-Aligned MD5 hash if from HW with zero-padding for lower 16 bits)           |
+| `Total` | `uint64` | Total size of payload                    |
+| `Order` | `uint32` | Packet Order                             |
+| `Data`  | `binary` | Binary Data                              |
+
+### Hardware-Originated Packets (Binary Data)
+#### `device-announce`
+Binary Data structure is a nested MSGPack payload containing:
+| Key           | Type     | Description                                |
+|---------------|----------|--------------------------------------------|
+| `DeviceName`  | `string` | Device Nickname                            |
+| `Firmware`  | `string` | SemVer FW Version String and #build number |
+| `AName`  | `string` | Deck A Nickname                            |
+| `BName`  | `string` | Deck B Nickname                            |
+| `CName`  | `string` | Deck C Nickname                            |
+| `DName`  | `string` | Deck D Nickname                            |
+| `Host`  | `string` | Deck A HID host software name, e.g. `Disconnected`, `Traktor`, `Serato`, `Virtual DJ`, `Rekordbox`, or `Unknown` |
+
+Hardware devices broadcast these on power up, IP assignment, and periodically every 2s on the local broadcast domain. `Host` is refreshed each time the packet is rebuilt.
+
+#### `cdj-waveform`
+This is a raw binary blob of data organized in 16-bit words, with each word representing a single waveform sample. (150 samples/second fixed temporal resolution)
+
+Waveform payload is decoded into a `Uint16Array`, so each waveform sample is one 16-bit word.
+
+- **Amplitude / height bits:** low 7 bits (`bits 0..6`)
+  - Extract with: `amp = sample & 0x007f`
+  - Normalize with: `normalized = amp / 127.0`
+- **Dim flag bit:** bit 7 (`0x0080`)
+  - Check with: `isDim = (sample & 0x0080) !== 0`
+  - If set, renderer multiplies RGB channels by `0.7`.
+- **Color bits:** high byte (`bits 8..15`)
+  - Extract with: `colorByte = (sample & 0xff00) >> 8`
+  - RGB expansion:
+    - `R = ((colorByte & 0b11100000) >> 5) * 32` (3 bits)
+    - `G = ((colorByte & 0b00011100) >> 2) * 32` (3 bits)
+    - `B = (colorByte & 0b00000011) * 64` (2 bits)
+
+Visual rules used by renderers
+
+- Height is based on max amplitude in a pixel window at low zoom.
+- Height is per-sample at high zoom.
+- Color is derived from the selected sample's color byte.
+- Dim flag darkens both base and saturated colors by multiplying channels by `0.7`.
+- In detailed waveform renderer, a vertical gradient is used:
+  - darker tip,
+  - brighter/saturated center,
+  - darker tip.
+
+
+#### `cdj-beatgrid`
+This is a raw binary blob of data organized in 16-bit words, with each word representing a single waveform sample. (150 samples/second fixed temporal resolution)
+
+Beat grid data is parsed from raw bytes in **4-byte little-endian records**.
+
+- Read each record as `uint32` little-endian.
+- Field split:
+  - `beat = val & 0xff` (lowest 8 bits)
+  - `time = val >>> 8` (upper 24 bits)
+- `isDownbeat` is `beat === 1`.
+- Parsed entries are sorted by `time` before being posted/used.
+
+
+## CLX Native Waveform Packets
 
 We follow the conventions from the BBC, with one alteration, appended to the bottom is a CLRS section in binary containing the rgb color values for each pair of values. This is represented as clrs in the json format.
 https://github.com/bbc/audiowaveform/blob/master/doc/DataFormat.md
