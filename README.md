@@ -119,8 +119,9 @@ Binary Data structure is a nested MSGPack payload containing:
 | `BName`  | `string` | Deck B Nickname                            |
 | `CName`  | `string` | Deck C Nickname                            |
 | `DName`  | `string` | Deck D Nickname                            |
+| `Host`  | `string` | Deck A HID host software name, e.g. `Disconnected`, `Traktor`, `Serato`, `Virtual DJ`, `Rekordbox`, or `Unknown` |
 
-Hardware devices broadcast these on power up, IP assignment, and periodically every 2s on the local broadcast domain.
+Hardware devices broadcast these on power up, IP assignment, and periodically every 2s on the local broadcast domain. `Host` is refreshed each time the packet is rebuilt.
 
 #### `cdj-waveform`
 This is a raw binary blob of data organized in 16-bit words, with each word representing a single waveform sample. (150 samples/second fixed temporal resolution)

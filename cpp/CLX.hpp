@@ -79,3 +79,25 @@ typedef struct Event {
     }
         
 } Event_t;
+
+typedef struct DeviceAnnounce {
+    std::string device_name;
+    std::string firmware;
+    std::string a_name;
+    std::string b_name;
+    std::string c_name;
+    std::string d_name;
+    std::string host;
+
+    static DeviceAnnounce fromMsgPack(const msgpack11::MsgPack& msg) {
+        DeviceAnnounce announce;
+        announce.device_name = msg["DeviceName"].string_value();
+        announce.firmware = msg["Firmware"].string_value();
+        announce.a_name = msg["AName"].string_value();
+        announce.b_name = msg["BName"].string_value();
+        announce.c_name = msg["CName"].string_value();
+        announce.d_name = msg["DName"].string_value();
+        announce.host = msg["Host"].string_value();
+        return announce;
+    }
+} DeviceAnnounce_t;
